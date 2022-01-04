@@ -19,7 +19,7 @@ export ORACLEDB_IP=<oracle_db_ip>
 export ORACLEDB_PORT=<oracle_db_port>
 export EGRESS_GATEWAY_ORACLEDB_PORT=<istio_egress_gateway_port>
 
-oc create -f egress-rule-oracledb.yaml
+envsubst < egress-rule-oracledb.yaml | oc create -f -
 ~~~
 
 ### Application deployment configuration
