@@ -2,6 +2,13 @@
 
 This example shows how to communicate with an Oracle Database which is external to the Mesh.
 
+## Java microservice container creation
+~~~
+cd src/java/wallet-secret-sample 
+mvn clean install
+podman build -t <container-tag> target  
+~~~
+
 ## Configuration and deploy
 
 ### Service Mesh configuration

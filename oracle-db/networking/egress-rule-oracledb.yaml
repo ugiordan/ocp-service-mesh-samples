@@ -7,7 +7,7 @@ metadata:
   name: oracle
 spec:
   hosts:
-    - my-oracle.tcp.svc
+    - oracledb-host.tcp.svc
   addresses:
     - $ORACLEDB_IP/32
   ports:
@@ -34,7 +34,7 @@ spec:
         name: tcp
         protocol: TCP
       hosts:
-        - my-oracle.tcp.svc
+        - oracledb-host.tcp.svc
 ---
 ##################################################################################################
 # Istio Egress DestinationRule
@@ -56,7 +56,7 @@ kind: DestinationRule
 metadata:
   name: oracle
 spec:
-  host: my-oracle.tcp.svc
+  host: oracledb-host.tcp.svc
 ---
 ##################################################################################################
 # VirtualService to direct TCP Egress traffic through the istio egress gateway
@@ -67,7 +67,7 @@ metadata:
   name: direct-oracle-through-egress-gateway
 spec:
   hosts:
-    - my-oracle.tcp.svc
+    - oracledb-host.tcp.svc
   gateways:
     - mesh
     - istio-egressgateway
@@ -90,7 +90,7 @@ spec:
           port: $EGRESS_GATEWAY_ORACLEDB_PORT
       route:
         - destination:
-            host: my-oracle.tcp.svc
+            host: oracledb-host.tcp.svc
             port:
               number: $ORACLEDB_PORT
           weight: 100
