@@ -1,0 +1,96 @@
+##################################################################################################
+# Oracle ServiceEntry
+##################################################################################################
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: oracle
+spec:
+  hosts:
+    - my-oracle.tcp.svc
+  addresses:
+    - $ORACLEDB_IP/32
+  ports:
+    - number: $ORACLEDB_PORT
+      name: tcp
+      protocol: TCP
+  resolution: STATIC
+  endpoints:
+    - address: $ORACLEDB_IP
+---
+##################################################################################################
+# Istio Egress Gateway
+##################################################################################################
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: istio-egressgateway
+spec:
+  selector:
+    istio: egressgateway
+  servers:
+    - port:
+        number: $EGRESS_GATEWAY_ORACLEDB_PORT
+        name: tcp
+        protocol: TCP
+      hosts:
+        - my-oracle.tcp.svc
+---
+##################################################################################################
+# Istio Egress DestinationRule
+##################################################################################################
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: egressgateway-for-oracle
+spec:
+  host: istio-egressgateway.istio-system.svc.cluster.local
+  subsets:
+    - name: oracle
+---
+##################################################################################################
+# Oracle DestinationRule
+##################################################################################################
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: oracle
+spec:
+  host: my-oracle.tcp.svc
+---
+##################################################################################################
+# VirtualService to direct TCP Egress traffic through the istio egress gateway
+##################################################################################################
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: direct-oracle-through-egress-gateway
+spec:
+  hosts:
+    - my-oracle.tcp.svc
+  gateways:
+    - mesh
+    - istio-egressgateway
+  tcp:
+    - match:
+        - gateways:
+            - mesh
+          destinationSubnets:
+            - $ORACLEDB_IP/32
+          port: $ORACLEDB_PORT
+      route:
+        - destination:
+            host: istio-egressgateway.istio-system.svc.cluster.local
+            subset: oracle
+            port:
+              number: $EGRESS_GATEWAY_ORACLEDB_PORT
+    - match:
+        - gateways:
+            - istio-egressgateway
+          port: $EGRESS_GATEWAY_ORACLEDB_PORT
+      route:
+        - destination:
+            host: my-oracle.tcp.svc
+            port:
+              number: $ORACLEDB_PORT
+          weight: 100

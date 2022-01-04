@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle-db
+  labels:
+    app: oracle-db
+    service: oracle-db
+spec:
+  selector:
+    app: oracle-db
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oracle-db-test
+  labels:
+    app: oracle-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oracle-db
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: oracle-db
+    spec:
+      volumes:
+        - name: wallet
+          secret:
+            secretName: oracle-db-wallet
+      containers:
+        - name: oracle-db-health-check
+          volumeMounts:
+            - name: wallet
+              # mountPath must coincide with the one selected for the wallet_location env variable (used to set the oracle.net.wallet_location variable)
+              mountPath: $ORACLEDB_WALLET_LOCATION
+              readOnly: true
+          image: quay.io/ugiordan/oracle-wallet-secret
+          imagePullPolicy: Always
+          env:
+            - name: URL
+              value: $ORACLEDB_URL
+            - name: USER
+              value: $ORACLEDB_USERNAME
+            - name: PASSWORD
+              value: $ORACLEDB_PASSWORD
+            - name: WALLET_LOCATION
+              value: $ORACLEDB_WALLET_LOCATION
+          ports:
+            - containerPort: 8080
