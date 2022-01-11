@@ -15,8 +15,7 @@ Export the Oracle DB environment variables:
 ~~~bash
 export ORACLEDB_HOST="<hostname>"
 export ORACLEDB_IP="<ip>"
-export ORACLEDB_TCP_PORT="<tcp_port>"
-export ORACLEDB_TCPS_PORT="<tcps_port>"
+export ORACLEDB_PORT="<tcp_port/tcps_port>"
 ~~~
 
 Exporting the environment variables to configure the Java microservice container
@@ -53,11 +52,11 @@ oc create secret generic oracle-jdbc-env \
   
 The following is an example URL for connecting to Oracle DB using TCP:
 ~~~bash
-export ORACLEDB_URL="jdbc:oracle:thin:@tcp://$ORACLEDB_HOST:$ORACLEDB_TCP_PORT/<service-name>"
+export ORACLEDB_URL="jdbc:oracle:thin:@tcp://$ORACLEDB_HOST:$ORACLEDB_PORT/<service-name>"
 ~~~
 <!-- 
 ~~~bash
-export ORACLEDB_URL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$$ORACLEDB_HOST)(PORT=$ORACLEDB_TCP_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=<service-name>)))" 
+export ORACLEDB_URL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$$ORACLEDB_HOST)(PORT=$ORACLEDB_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=<service-name>)))" 
 ~~~
 -->
 
@@ -78,11 +77,11 @@ export ORACLEDB_WALLET_LOCATION="<wallet_location>"
 Then *mountPath* (i.e., the **ORACLEDB_WALLET_LOCATION**) must coincide with the one selected for the **wallet_location** variable (used to set the *oracle.net.wallet_location* variable) specified in the Oracle URL string. \
 The following is an example URL for connecting to Oracle DB using TCPS and wallet:
 ~~~bash
-export ORACLEDB_URL="jdbc:oracle:thin:@tcps://$ORACLEDB_HOST:$ORACLEDB_TCPS_PORT/<service-name>?wallet_location=$ORACLEDB_WALLET_LOCATION"
+export ORACLEDB_URL="jdbc:oracle:thin:@tcps://$ORACLEDB_HOST:$ORACLEDB_PORT/<service-name>?wallet_location=$ORACLEDB_WALLET_LOCATION"
 ~~~
 <!--
 ~~~bash
-export ORACLEDB_URL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=$ORACLEDB_HOST)(PORT=$ORACLEDB_TCPS_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=<service-name>)))?WALLET_LOCATION=$ORACLEDB_WALLET_LOCATION"
+export ORACLEDB_URL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=$ORACLEDB_HOST)(PORT=$ORACLEDB_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=<service-name>)))?WALLET_LOCATION=$ORACLEDB_WALLET_LOCATION"
 ~~~
 -->
 
