@@ -136,7 +136,7 @@ export ORACLEDB_URL="jdbc:oracle:thin:@<SERVICE_NAME>"
   ~~~
 
 ## Service Mesh configuration
-To consume the Oracle DB service by the in-mesh Java microservice application via TCP apply one of the following configurations:
+Apply one of the following configurations to consume the Oracle DB service by the in-mesh Java microservice application:
 
 - Control TCP egress traffic without a gateway:
   ~~~
