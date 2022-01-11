@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracledb-health-check
+  labels:
+    app: oracledb-health-check
+    service: oracledb-health-check
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: oracledb-health-check
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oracledb-health-check
+  labels:
+    app: oracledb-health-check
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oracledb-health-check
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: oracledb-health-check
+    spec:
+      containers:
+        - name: oracle-db-health-check
+          image: quay.io/ugiordan/oracledb-health-check
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: URL
+              value: $ORACLEDB_URL
+            - name: USER
+              value: $ORACLEDB_USERNAME
+            - name: PASSWORD
+              value: $ORACLEDB_PASSWORD
+          ports:
+            - containerPort: 8080

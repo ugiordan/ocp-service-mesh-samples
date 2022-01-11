@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: oracle
+spec:
+  hosts:
+    - oracledb-host.tcp.svc
+  addresses:
+    - $ORACLEDB_IP/32
+  ports:
+    - number: $ORACLEDB_PORT
+      name: tcp
+      protocol: TCP
+  resolution: STATIC
+  location: MESH_EXTERNAL
+  endpoints:
+    - address: $ORACLEDB_IP

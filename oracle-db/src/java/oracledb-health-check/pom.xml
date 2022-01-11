@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>oracle-adb-health-check</groupId>
-    <artifactId>oracle-adb-health-check</artifactId>
+    <groupId>oracledb-health-check</groupId>
+    <artifactId>oracledb-health-check</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>demoOSSM</name>
 
     <properties>
-        <package>oracle-adb-health-check</package>
+        <package>oracledb-health-check</package>
         <mainClass>application.healthcheck.OracleClient</mainClass>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>

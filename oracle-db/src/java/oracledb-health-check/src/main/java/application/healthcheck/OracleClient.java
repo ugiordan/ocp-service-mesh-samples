@@ -33,7 +33,6 @@ public class OracleClient {
         // Start an HttpServer listening on port 8080 to send database status.
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/", (httpExchange) -> {
-
             try (OracleConnection conn = (OracleConnection) ds.getConnection();
                  Statement stmt = conn.createStatement()) {
 
