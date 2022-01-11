@@ -85,6 +85,18 @@ export ORACLEDB_URL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOS
 ~~~
 -->
 
+#### Create the deployment:
+- using the exported environment variables:
+   ~~~bash
+   envsubst < oracle-db-tcps-wallet.yaml | oc create -f -
+   ~~~
+
+- using the secret that stores the environment variables:
+  ~~~bash
+  oc patch -f oracle-db-tcps-wallet.yaml --type merge --patch "$(cat patch-file-secret-env.yaml)" --local=true -oyaml | oc create -f -
+  ~~~
+
+#### Using TNS alias
 It is also possible to simplify the Oracle URL string connection by adding the *tnsnames.ora* and *sqlnet.ora* files to the **oracle-db-wallet**.
 
 The following is an example of *tnsnames.ora*, or TNS (Transparent Network Substrate) file. It is a text file used to configure a client-side connection to the Oracle database. \
@@ -118,21 +130,11 @@ WALLET_LOCATION =
   )
 ~~~
 
-Using the *tnsnames.ora* and *sqlnet.ora* files, the URL connection string will be:
+Using the TNS alias the URL connection string will be:
 ~~~bash
-export ORACLEDB_URL="jdbc:oracle:thin:@<SERVICE_NAME>"
+export ORACLEDB_URL="jdbc:oracle:thin:@<alias-in-tnsnames.ora>"
 ~~~
 
-#### Create the deployment:
-- using the exported environment variables:
-   ~~~bash
-   envsubst < oracle-db-tcps-wallet.yaml | oc create -f -
-   ~~~
-
-- using the secret that stores the environment variables:
-  ~~~bash
-  oc patch -f oracle-db-tcps-wallet.yaml --type merge --patch "$(cat patch-file-secret-env.yaml)" --local=true -oyaml | oc create -f -
-  ~~~
 
 ## Service Mesh configuration
 Apply one of the following configurations to consume the Oracle DB service by the in-mesh Java microservice application:
