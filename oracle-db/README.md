@@ -7,7 +7,7 @@ You deploy a simple Java client microservice application which communicate with 
 This microservice can also be used to validate connectivity with the database by looking at its log or issuing http requests.
 
 ## Creating the Oracle Database
-According to your testing environment follow one of this two documentation to install the Oracle Database (12c R1):
+According to your testing environment follow one of this two documentations to install the Oracle Database (12c R1):
 - [Amazon Web Services (AWS) : Installation of Oracle on EC2](https://oracle-base.com/articles/vm/aws-ec2-installation-of-oracle)
 - [Oracle Database 12c Release 1 (12.1) Installation On Oracle Linux 7 (OL7)](https://oracle-base.com/articles/12c/oracle-db-12cr1-installation-on-oracle-linux-7)
 
