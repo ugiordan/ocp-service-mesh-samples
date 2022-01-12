@@ -57,6 +57,14 @@ metadata:
   name: oracle
 spec:
   host: oracledb-host.tcp.svc
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    portLevelSettings:
+      - port:
+          number: 2484
+        tls:
+          mode: SIMPLE
 ---
 ##################################################################################################
 # VirtualService to direct TCP Egress traffic through the istio egress gateway

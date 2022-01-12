@@ -6,6 +6,52 @@ You deploy a simple Java client microservice application which communicate with 
 
 This microservice can also be used to validate connectivity with the database by looking at its log or issuing http requests.
 
+## Creating the Oracle Database
+According to your testing environment follow one of this two documentation to install the Oracle Database (12c R1):
+- [Amazon Web Services (AWS) : Installation of Oracle on EC2](https://oracle-base.com/articles/vm/aws-ec2-installation-of-oracle)
+- [Oracle Database 12c Release 1 (12.1) Installation On Oracle Linux 7 (OL7)](https://oracle-base.com/articles/12c/oracle-db-12cr1-installation-on-oracle-linux-7)
+
+Database Creation (DBCA):
+~~~
+dbca -silent -createDatabase \
+ -templateName General_Purpose.dbc \
+ -gdbname <database_name> -sid <database_name> -responseFile NO_VALUE \
+ -characterSet AL32UTF8 \
+ -sysPassword <password> \
+ -systemPassword <password> \
+ -createAsContainerDatabase true \
+ -numberOfPDBs 1 \
+ -pdbName test \
+ -pdbAdminPassword <password> \
+ -databaseType MULTIPURPOSE \
+ -automaticMemoryManagement false \
+ -storageType FS \
+ -datafileDestination "/u01/app/oracle/oradata/" \
+ -redoLogFileSize 50 \
+ -emConfiguration NONE \
+ -ignorePreReqs
+~~~
+
+Create a User and grant Permissions:
+~~~
+export ORACLE_SID=test
+alter session set "_ORACLE_SCRIPT"=true; 
+create user <username> identified by <password>;
+create role <username>_role;
+GRANT ALL PRIVILEGES TO <username>_role; 
+GRANT <username>_role TO <username>;
+~~~
+
+Test connection:
+~~~
+sqlplus <username>/<password>
+
+SQL> SELECT SYSDATE from dual;
+SYSDATE
+---------
+12-JAN-22
+~~~
+
 ## Creating the Java microservice container
 ~~~bash
 cd src/java/wallet-secret-sample 
@@ -27,7 +73,7 @@ Exporting the environment variables to configure the Java microservice container
 ~~~bash
 export ORACLEDB_URL="jdbc:oracle:thin:@<database>"
 export ORACLEDB_USERNAME="<username>"
-export ORACLEDB_PASSWORD="<username>"
+export ORACLEDB_PASSWORD="<password>"
 ~~~
 
 The container can also be configured to retrieve the environment variables from a secret. \
@@ -38,7 +84,7 @@ To create it you can use the following command as an example:
 oc create secret generic oracle-jdbc-env \
   --from-literal=url=jdbc:oracle:thin:@<database> \
   --from-literal=user=<username> \
-  --from-literal=password=<username>
+  --from-literal=password=<password>
 ~~~
 
 ### Oracle DB deployment with TCP connection
@@ -58,6 +104,10 @@ The following is the JDBC URL connection string with JDBC Thin Driver using the 
 ~~~bash
 export ORACLEDB_URL="jdbc:oracle:thin:@tcp://$ORACLEDB_HOST:$ORACLEDB_PORT/<service-name>"
 ~~~
+
+Refer to the official [Oracle JDBC driver documentation](https://docs.oracle.com/en/database/oracle/oracle-database/21/jajdb/oracle/jdbc/OracleDriver.html)
+for more information about the URL formats.
+
 <!-- 
 ~~~bash
 export ORACLEDB_URL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$$ORACLEDB_HOST)(PORT=$ORACLEDB_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=<service-name>)))" 
@@ -72,17 +122,20 @@ oc create secret generic oracledb-wallet --from-file=<path-to-wallets-unzipped-f
 ~~~
 
 Export the **ORACLEDB_WALLET_LOCATION** variable (or manually edit the [oracle-db-tcps-wallet.yaml](platform/ocp/oracle-db-tcps-wallet.yaml) file) 
-which specifies the *mountPath* where the Java microservice application can find the SSO Wallet file (*cwallet.sso*) required to start the SSL/TLS connection. 
+which specifies the *mountPath* where the Java microservice application can find the SSO Wallet file (*cwallet.sso*) 
+required to start the SSL/TLS connection. 
 
 ~~~bash
 export ORACLEDB_WALLET_LOCATION="<wallet_location>"
 ~~~
 
-Then *mountPath* (i.e., the **ORACLEDB_WALLET_LOCATION**) must coincide with the one selected for the **wallet_location** variable (used to set the *oracle.net.wallet_location* variable) specified in the Oracle URL string. \
-The following is the JDBC URL connection string with JDBC Thin Driver using the TCPS protocol and the SSO Wallet:
+Then *mountPath* (i.e., the **ORACLEDB_WALLET_LOCATION**) must coincide with the one selected for the **wallet_location** 
+variable (used to set the *oracle.net.wallet_location* variable) specified in the Oracle URL string. \
+The following is the JDBC EZConnect URL connection string with JDBC Thin Driver using the TCPS protocol and the SSO Wallet:
 ~~~bash
 export ORACLEDB_URL="jdbc:oracle:thin:@tcps://$ORACLEDB_HOST:$ORACLEDB_PORT/<service-name>?wallet_location=$ORACLEDB_WALLET_LOCATION"
 ~~~
+
 <!--
 ~~~bash
 export ORACLEDB_URL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=$ORACLEDB_HOST)(PORT=$ORACLEDB_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=<service-name>)))?WALLET_LOCATION=$ORACLEDB_WALLET_LOCATION"
@@ -108,7 +161,8 @@ The *tnsnames.ora* file contains the predefined service names. Each service has 
 A sample entry, with *oracldb_name* as the TNS alias and a connection string in tnsnames.ora follows:
 
 ~~~
-# You should replace **<SERVER_ADDRESS>** and the **<TCPS_PORT>** with the *IP Address* or *FQDN* and the *TCPS* port of the server hosting your database, respectively. 
+# You should replace **<SERVER_ADDRESS>** and the **<TCPS_PORT>** with the *IP Address* or *FQDN* and the *TCPS* port
+# of the server hosting your database, respectively. 
 oracldb_name =
   (DESCRIPTION =
     (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCPS)(HOST = <SERVER_ADDRESS>)(PORT = <TCPS_PORT>)))
@@ -149,7 +203,8 @@ To use the JDBC Thin Driver to connect with TNS alis and Oracle Wallet, do the f
     oc delete pods -l app=oracledb-health-check
     ~~~
 
-
+Refer to the official Oracle [documentation](https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/connect-jdbc-thin-wallet.html#GUID-BE543CFD-6FB4-4C5B-A2EA-9638EC30900D)
+for more information about JDBC Thin Connections with a Wallet.
 
 ## Service Mesh configuration
 Apply one of the following configurations to consume the Oracle DB service by the in-mesh Java microservice application:
