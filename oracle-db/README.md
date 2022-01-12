@@ -195,7 +195,7 @@ To use the JDBC Thin Driver to connect with TNS alis and Oracle Wallet, do the f
 3. Update the **oracle-db-wallet** secret by adding the *tnsnames.ora*, *sqlnet.ora* and the *ojdbc.properties* files to the *<path-to-wallets-unzipped-folder>*:
 
     ~~~bash
-    oc create secret generic oracle-db-wallet --save-config --dry-run=client --from-file=wallet/ -oyaml | oc apply -f -
+    oc set data secret/oracle-db-wallet --from-file=wallet/
     ~~~
 
 4. Delete the pods to let the deployment recreate them with the updated **oracle-db-wallet** secret.
