@@ -2,7 +2,7 @@
 
 This example shows how to consume external OracleDB services. 
 
-You deploy a simple Java client microservice application which communicate with the external OracleDB using JDBC.
+You deploy a simple Java client microservice application that communicates with the external OracleDB using JDBC.
 
 This microservice can also be used to validate connectivity with the database by looking at its log or issuing http requests.
 
